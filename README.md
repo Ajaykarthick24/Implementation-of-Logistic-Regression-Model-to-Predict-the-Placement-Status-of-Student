@@ -35,75 +35,45 @@ Developed by: Ajay Karthick M
 
 RegisterNumber:  212225040014
 ```
-# Logistic Regression for Placement Prediction (using Placement_Data.csv)
-
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-
-# Step 1: Load dataset
-data = pd.read_csv(r"C:\Users\israv\Downloads\Placement_Data.csv")
-print("First 5 rows:\n", data.head())
-
-
-# Step 2: Preprocessing
-# Drop irrelevant columns (like serial number, names if present)
-if "sl_no" in data.columns:
-    data = data.drop("sl_no", axis=1)
-if "salary" in data.columns:
-    data = data.drop("salary", axis=1)   # can't use salary to predict placement
-
-# Encode categorical columns
+df = pd.read_csv('Placement_Data.csv')
+df
+df1 = df.copy()
+df1
+df1 = df1.drop(['sl_no', 'salary'], axis=1)
+df1.isnull().sum()
+df1.duplicated().sum()
+df1
+from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
-for col in data.columns:
-    if data[col].dtype == "object":
-        data[col] = le.fit_transform(data[col])
-
-# Step 3: Separate features and target
-X = data.drop("status", axis=1)   # features
-y = data["status"]                # target
-
-# Step 4: Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Step 5: Feature scaling
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-
-# Step 6: Build Logistic Regression model
-model = LogisticRegression(max_iter=200)
-model.fit(X_train, y_train)
-
-# Step 7: Predictions
-y_pred = model.predict(X_test)
-
-# Step 8: Evaluation
-
-from sklearn.metrics import classification_report, confusion_matrix
-import pandas as pd
-
-# Accuracy
-print("\n\n\n✅ Accuracy:", accuracy_score(y_test, y_pred))
-
-# Confusion matrix as DataFrame
-cm = confusion_matrix(y_test, y_pred)
-cm_df = pd.DataFrame(cm, 
-                     index=["Actual:Not Placed", "Actual:Placed"], 
-                     columns=["Pred:Not Placed", "Pred:Placed"])
-
-print("\nConfusion Matrix (better format):")
-print(cm_df)
-
-# Classification report as DataFrame
-report = classification_report(y_test, y_pred, output_dict=True)
-report_df = pd.DataFrame(report).transpose()
-
-print("\nClassification Report (better format):")
-print(report_df.round(2)) 
+df1['gender'] = le.fit_transform(df1['gender'])
+df1['ssc_b'] = le.fit_transform(df1['ssc_b'])
+df1['hsc_b'] = le.fit_transform(df1['hsc_b'])
+df1['hsc_s'] = le.fit_transform(df1['hsc_s'])
+df1['degree_t'] = le.fit_transform(df1['degree_t'])
+df1['workex'] = le.fit_transform(df1['workex'])
+df1['specialisation'] = le.fit_transform(df1['specialisation'])
+df1['status'] = le.fit_transform(df1['status'])
+df1
+x = df1.iloc[:, :-1]
+y = df1['status']
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(solver="liblinear")
+model.fit(x_train, y_train)
+y_pred = model.predict(x_test)
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+accuracy = accuracy_score(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+cr = classification_report(y_test, y_pred)
+print("Accuracy Score:", accuracy)
+print("\nConfusion Matrix:\n", confusion)
+print("\nClassification Report:\n", cr)
+from sklearn import metrics
+cn_display = metrics.ConfusionMatrixDisplay(confusion_matrix=confusion, display_labels=['true', 'false'])
+cn_display.plot()
 ```
 
 ## Output:
